@@ -1,0 +1,98 @@
+name: Bug report
+description: Loadarr did something it shouldn't have, or didn't do something it should have.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Attaching your **`loadarr.log`** makes diagnosing roughly 10× faster — please include it whenever possible (instructions below).
+
+  - type: input
+    id: version
+    attributes:
+      label: Loadarr version
+      description: The release tag you installed (e.g. `v0.1.42`), or the date / commit you built from source.
+      placeholder: v0.1.42
+    validations:
+      required: true
+
+  - type: dropdown
+    id: host
+    attributes:
+      label: Where did the bug happen?
+      options:
+        - LaunchBox (desktop)
+        - BigBox (controller / 10-foot UI)
+        - Both
+    validations:
+      required: true
+
+  - type: input
+    id: launchbox-version
+    attributes:
+      label: LaunchBox / BigBox version
+      description: Found under Help → About in LaunchBox.
+      placeholder: e.g. 13.15
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Windows version
+      placeholder: e.g. Windows 11 23H2
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction steps
+      description: What did you do, step by step?
+      placeholder: |
+        1. Open Tools → Loadarr — Find ROMs
+        2. Search for "Paper Mario"
+        3. Click "Download & Import" on the first result
+        4. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead?
+      description: Include any error messages or unexpected dialogs.
+    validations:
+      required: true
+
+  - type: textarea
+    id: log
+    attributes:
+      label: Logfile (`loadarr.log`)
+      description: |
+        **The fastest way to find your log:**
+
+        - In **LaunchBox**: open `Tools → Loadarr — Settings…`, then click `Open log folder`. The `loadarr.log` file is right there.
+        - **Manually**: paste `%APPDATA%\Loadarr` into the Windows File Explorer address bar.
+
+        Then either drag `loadarr.log` into the box below, or copy-paste the relevant lines.
+
+        If logging is disabled (the Settings window has an "Enable debug logging" checkbox), turn it on, reproduce the bug once, and attach the resulting log.
+      render: text
+    validations:
+      required: false
+
+  - type: textarea
+    id: extras
+    attributes:
+      label: Anything else?
+      description: Screenshots, the ROM source you searched, the platform involved, etc.
+    validations:
+      required: false

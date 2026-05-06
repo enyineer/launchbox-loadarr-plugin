@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <PlatformTarget>x64</PlatformTarget>
+    <AssemblyName>Loadarr</AssemblyName>
+    <RootNamespace>Loadarr</RootNamespace>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <Copyright>Copyright (c) 2026 Nico Enking</Copyright>
+    <Product>Loadarr — LaunchBox ROM Search &amp; Import Plugin</Product>
+    <Description>Search well-known ROM sources from inside LaunchBox, download, and auto-import.</Description>
+    <Version>0.1.0</Version>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <!--
+    LaunchBox plugin assembly. Set LaunchBoxPath in your environment or via
+    'msbuild /p:LaunchBoxPath=C:\LaunchBox' to point at your LaunchBox install.
+    Default location matches a typical install on Windows.
+  -->
+  <PropertyGroup>
+    <LaunchBoxPath Condition="'$(LaunchBoxPath)' == ''">C:\Users\$(USERNAME)\LaunchBox</LaunchBoxPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Unbroken.LaunchBox.Plugins">
+      <HintPath>$(LaunchBoxPath)\Core\Unbroken.LaunchBox.Plugins.dll</HintPath>
+      <Private>false</Private>
+      <SpecificVersion>false</SpecificVersion>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.61" />
+    <PackageReference Include="SharpCompress" Version="0.36.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.10" />
+    <PackageReference Include="Costura.Fody" Version="5.7.0" PrivateAssets="all" />
+    <PackageReference Include="Fody" Version="6.8.0" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Loadarr.Sources.VimmsLair\Loadarr.Sources.VimmsLair.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="UI\Assets\bg.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Net.Http" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="System.Xaml" />
+    <!-- For Settings window's FolderBrowserDialog. WPF has no built-in
+         folder picker on net48; using the Win32 SHBrowseForFolder shell API
+         via WinForms is the standard workaround for plugin-style apps. -->
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+
+</Project>

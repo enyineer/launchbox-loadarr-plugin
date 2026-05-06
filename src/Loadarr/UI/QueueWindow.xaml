@@ -1,0 +1,189 @@
+<Window x:Class="Loadarr.UI.QueueWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:ClassModifier="internal"
+        Title="Loadarr — Download Queue"
+        Width="900" Height="500"
+        WindowStartupLocation="CenterOwner"
+        FontFamily="Segoe UI"
+        FontSize="13"
+        Foreground="#E6E8EE"
+        Background="#16181F">
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="Border"        Color="#3A3F4F"/>
+        <SolidColorBrush x:Key="TextPrimary"   Color="#E6E8EE"/>
+        <SolidColorBrush x:Key="TextDim"       Color="#9097A8"/>
+        <SolidColorBrush x:Key="Accent"        Color="#F0A958"/>
+        <SolidColorBrush x:Key="AccentHover"   Color="#F5BD7A"/>
+        <SolidColorBrush x:Key="AccentPressed" Color="#D89043"/>
+        <SolidColorBrush x:Key="ErrorRed"      Color="#E5605C"/>
+        <SolidColorBrush x:Key="DoneGreen"     Color="#7BC080"/>
+
+        <Style x:Key="GhostButton" TargetType="Button">
+            <Setter Property="Background" Value="#22FFFFFF"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Border}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="3">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#44FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="DataGrid">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Border}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="RowBackground" Value="#5520232E"/>
+            <Setter Property="AlternatingRowBackground" Value="#7720232E"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#332A2F3D"/>
+            <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
+            <Setter Property="RowHeight" Value="32"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#CC1B1E27"/>
+            <Setter Property="Foreground" Value="{StaticResource Accent}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Border}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        </Style>
+
+        <Style TargetType="DataGridCell">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DataGridCell">
+                        <Border Background="{TemplateBinding Background}" Padding="10,4">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#44F0A958"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="DataGridRow">
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+
+        <Style TargetType="ProgressBar">
+            <Setter Property="Background" Value="#33000000"/>
+            <Setter Property="Foreground" Value="{StaticResource Accent}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Border}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="DOWNLOAD QUEUE"
+                       FontSize="16" FontWeight="Bold"
+                       Foreground="{StaticResource Accent}"/>
+            <TextBlock Text="{Binding JobCountText}"
+                       FontSize="12" FontWeight="SemiBold"
+                       Foreground="{StaticResource TextDim}"
+                       VerticalAlignment="Center"
+                       Margin="14,3,0,0"/>
+        </StackPanel>
+
+        <DataGrid Grid.Row="1"
+                  ItemsSource="{Binding Jobs}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  SelectionMode="Single"
+                  CanUserResizeColumns="True"
+                  CanUserSortColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="TITLE"    Binding="{Binding Title}"    Width="*"/>
+                <DataGridTextColumn Header="PLATFORM" Binding="{Binding Platform}" Width="130"/>
+                <DataGridTextColumn Header="SOURCE"   Binding="{Binding SourceName}" Width="110"/>
+                <DataGridTextColumn Header="STATUS"   Binding="{Binding StatusText}" Width="120"/>
+
+                <DataGridTemplateColumn Header="PROGRESS" Width="220">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <ProgressBar Grid.Row="0" Height="6"
+                                             VerticalAlignment="Center"
+                                             Minimum="0" Maximum="100"
+                                             Value="{Binding ProgressValue}"
+                                             IsIndeterminate="{Binding ProgressIndeterminate}"/>
+                                <TextBlock Grid.Row="1"
+                                           Text="{Binding StatusDetail}"
+                                           Foreground="#9097A8"
+                                           FontSize="11"
+                                           Margin="0,2,0,0"
+                                           TextTrimming="CharacterEllipsis"/>
+                            </Grid>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn Header="" Width="90">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource GhostButton}"
+                                    Content="{Binding ActionLabel}"
+                                    Command="{Binding DataContext.JobActionCommand,
+                                                       RelativeSource={RelativeSource AncestorType=Window}}"
+                                    CommandParameter="{Binding}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <DockPanel Grid.Row="2" LastChildFill="False" Margin="0,12,0,0">
+            <TextBlock DockPanel.Dock="Left"
+                       VerticalAlignment="Center"
+                       Foreground="{StaticResource TextDim}"
+                       FontSize="11"
+                       Text="Queue continues running in the background. Cancelling a queued job removes it; cancelling a running job aborts it."/>
+            <Button DockPanel.Dock="Right"
+                    Style="{StaticResource GhostButton}"
+                    Content="Clear Finished"
+                    Command="{Binding ClearFinishedCommand}"/>
+        </DockPanel>
+    </Grid>
+</Window>

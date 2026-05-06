@@ -1,0 +1,51 @@
+name: Feature request
+description: Suggest something Loadarr should do.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Tell us about the use case first — that's the part that's hard to reverse-engineer from a proposal.
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: What's the problem you're trying to solve?
+      description: What can't you do today, or what's awkward about the current workflow?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like Loadarr to do?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Have you considered alternatives?
+      description: Existing tools, manual workflows, other plugins, etc.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Where would this live?
+      options:
+        - LaunchBox (desktop)
+        - BigBox (controller UI)
+        - Both
+        - Not sure
+    validations:
+      required: false
+
+  - type: textarea
+    id: extras
+    attributes:
+      label: Anything else?
+      description: Sketches, examples, links to similar features in other tools.
+    validations:
+      required: false

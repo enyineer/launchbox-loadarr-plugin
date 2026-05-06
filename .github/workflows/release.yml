@@ -1,0 +1,85 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [main]
+    # Doc-only changes don't need a fresh release.
+    paths-ignore:
+      - '**.md'
+      - 'screenshots/**'
+      - '.github/ISSUE_TEMPLATE/**'
+
+  # Allow manual triggering for re-releases / testing.
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          lfs: true
+          fetch-depth: 1
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '8.0.x'
+
+      # Versioning policy:
+      #   <MAJOR>.<MINOR> from src/Loadarr/Loadarr.csproj's <Version>
+      #   <PATCH>         = github.run_number (monotonic per workflow file)
+      # The csproj stays the source of truth for major/minor; CI owns patch.
+      - name: Compute version
+        id: ver
+        run: |
+          set -euo pipefail
+          BASE=$(grep -oP '(?<=<Version>)[^<]+' src/Loadarr/Loadarr.csproj | head -1)
+          MAJOR_MINOR=$(echo "$BASE" | cut -d. -f1-2)
+          VERSION="${MAJOR_MINOR}.${{ github.run_number }}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION"     >> "$GITHUB_OUTPUT"
+          echo "Releasing as v$VERSION"
+
+      - name: Build LaunchBox API stub
+        run: dotnet build build/stubs/LaunchBoxStub/LaunchBoxStub.csproj -c Release
+
+      - name: Build Loadarr.dll
+        run: |
+          dotnet build src/Loadarr/Loadarr.csproj \
+            -c Release \
+            /p:Version=${{ steps.ver.outputs.version }} \
+            /p:AssemblyVersion=${{ steps.ver.outputs.version }}.0 \
+            /p:FileVersion=${{ steps.ver.outputs.version }}.0
+
+      - name: Stage release artifact
+        run: |
+          mkdir -p release
+          cp src/Loadarr/bin/Release/Loadarr.dll release/Loadarr.dll
+          (cd release && sha256sum Loadarr.dll > Loadarr.dll.sha256)
+          ls -la release/
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: ${{ steps.ver.outputs.tag }}
+          # Auto-generated changelog uses commits since the previous tag.
+          generate_release_notes: true
+          body: |
+            Automated build from commit [`${{ github.sha }}`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}).
+
+            ## Install
+
+            1. Download `Loadarr.dll` below.
+            2. Drop it into `<LaunchBox>\Plugins\Loadarr\Loadarr.dll` (create the folder if it doesn't exist).
+            3. Restart LaunchBox / BigBox.
+
+            See the [README](${{ github.server_url }}/${{ github.repository }}#readme) for usage.
+          files: |
+            release/Loadarr.dll
+            release/Loadarr.dll.sha256

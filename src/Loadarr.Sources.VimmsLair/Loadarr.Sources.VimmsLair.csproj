@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <RootNamespace>Loadarr.Sources.VimmsLair</RootNamespace>
+    <AssemblyName>Loadarr.Sources.VimmsLair</AssemblyName>
+    <Version>0.1.0</Version>
+    <Description>HTML scraper for vimm.net (The Vault). Targets netstandard2.0 so it can be consumed by the .NET Framework 4.8 LaunchBox plugin and tested on modern .NET.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.61" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Loadarr.Sources.VimmsLair.Tests" />
+  </ItemGroup>
+
+</Project>
