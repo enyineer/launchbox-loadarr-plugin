@@ -45,16 +45,26 @@ jobs:
           echo "tag=v$VERSION"     >> "$GITHUB_OUTPUT"
           echo "Releasing as v$VERSION"
 
+      # The main csproj resolves Unbroken.LaunchBox.Plugins via
+      # <HintPath>$(LaunchBoxPath)\Core\Unbroken.LaunchBox.Plugins.dll</HintPath>.
+      # We build the cross-platform stub, drop it into a fake LaunchBox install
+      # tree, and point LaunchBoxPath there — same scheme as build/build-mac.sh.
       - name: Build LaunchBox API stub
-        run: dotnet build build/stubs/LaunchBoxStub/LaunchBoxStub.csproj -c Release
+        run: |
+          set -euo pipefail
+          dotnet build build/stubs/LaunchBoxStub/LaunchBoxStub.csproj -c Release
+          mkdir -p build/stubs/launchbox-fake/Core
+          cp build/stubs/LaunchBoxStub/bin/Release/Unbroken.LaunchBox.Plugins.dll \
+             build/stubs/launchbox-fake/Core/Unbroken.LaunchBox.Plugins.dll
 
       - name: Build Loadarr.dll
         run: |
           dotnet build src/Loadarr/Loadarr.csproj \
             -c Release \
-            /p:Version=${{ steps.ver.outputs.version }} \
-            /p:AssemblyVersion=${{ steps.ver.outputs.version }}.0 \
-            /p:FileVersion=${{ steps.ver.outputs.version }}.0
+            -p:LaunchBoxPath="$GITHUB_WORKSPACE/build/stubs/launchbox-fake" \
+            -p:Version=${{ steps.ver.outputs.version }} \
+            -p:AssemblyVersion=${{ steps.ver.outputs.version }}.0 \
+            -p:FileVersion=${{ steps.ver.outputs.version }}.0
 
       - name: Stage release artifact
         run: |
